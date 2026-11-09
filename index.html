@@ -347,7 +347,8 @@ document.getElementById('lead').addEventListener('submit',function(e){
   var first=f.name.value.trim().split(' ')[0];btn.disabled=true;btn.textContent='Sending…';note('text-mist','');
   fetch('https://formsubmit.co/ajax/613689101b1c28a29850968e54c42180',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({
     _subject:'Demo request: '+f.company.value.trim(),_template:'table',_replyto:f.email.value.trim(),
-    Name:f.name.value.trim(),Company:f.company.value.trim(),Email:f.email.value.trim(),Phone:f.phone.value.trim(),'Annual turnover':f.size.value,Project:f.message.value.trim()
+    _autoresponse:'Hi '+first+',\n\nThank you for getting in touch with Noble FMS. We have received your details and one of our team will be in touch shortly to arrange a time that suits you.\n\nIn the meantime, if there is anything you would like us to know about your business or the project you are running, write to us at hello@noblefms.com.au.\n\nWe look forward to speaking with you.\n\nKind regards,\nThe Noble FMS team\nhttps://noblefms.com.au',
+    Name:f.name.value.trim(),Company:f.company.value.trim(),email:f.email.value.trim(),Phone:f.phone.value.trim(),'Annual turnover':f.size.value,Project:f.message.value.trim()
   })}).then(function(r){return r.json().then(function(d){if(!r.ok||String(d.success)!=='true')throw new Error(d.message||'failed');});})
   .then(function(){f.reset();note('text-emerald-300','Thanks, '+first+'. We have your details and will be in touch shortly.');})
   .catch(function(){note('text-amber-300','Sorry, that did not send. Please email hello@noblefms.com.au.');})
