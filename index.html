@@ -294,6 +294,7 @@ tailwind.config = { theme: { extend: {
         <label class="flex flex-col gap-1.5 text-sm text-mist" for="f-phone">Phone<input class="field" id="f-phone" name="phone" type="tel" autocomplete="tel"></label>
         <label class="flex flex-col gap-1.5 text-sm text-mist sm:col-span-2" for="f-size">Annual turnover<select class="field" id="f-size" name="size"><option class="text-navy-900">Under $20m</option><option class="text-navy-900">$20m to $100m</option><option class="text-navy-900">$100m to $300m</option><option class="text-navy-900">Over $300m</option></select></label>
         <label class="flex flex-col gap-1.5 text-sm text-mist sm:col-span-2" for="f-msg">Tell us about a project you are running<textarea class="field min-h-[120px] resize-y" id="f-msg" name="message" placeholder="What it is, where it is up to, and what you would like to see"></textarea></label>
+        <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden">
         <div class="flex flex-wrap items-center gap-4 sm:col-span-2"><button class="btn btn-solid" type="submit">Book my demo</button><p id="f-note" role="status" class="m-0 min-h-[1.5em] text-[15px] text-mist"></p></div>
       </form>
     </div>
@@ -339,9 +340,18 @@ tailwind.config = { theme: { extend: {
   if(!reduce)timer=setInterval(function(){if(track.offsetParent)go(idx+1);},6000);
 })();
 document.getElementById('lead').addEventListener('submit',function(e){
-  e.preventDefault();var f=e.target,n=document.getElementById('f-note');
-  if(!f.name.value.trim()||!f.company.value.trim()||!/\S+@\S+\.\S+/.test(f.email.value)){n.className='m-0 min-h-[1.5em] text-[15px] text-amber-300';n.textContent='Add your name, company and a valid work email.';return;}
-  var b='Name: '+f.name.value+'\nCompany: '+f.company.value+'\nEmail: '+f.email.value+'\nPhone: '+f.phone.value+'\nAnnual turnover: '+f.size.value+'\n\n'+f.message.value;location.href='mailto:hello@noblefms.com.au?subject='+encodeURIComponent('Demo request: '+f.company.value.trim())+'&body='+encodeURIComponent(b);n.className='m-0 min-h-[1.5em] text-[15px] text-emerald-300';n.textContent='Thanks, '+f.name.value.trim().split(' ')[0]+'. Your email app will open with the details filled in. Press send and we will be in touch.';
+  e.preventDefault();var f=e.target,n=document.getElementById('f-note'),btn=f.querySelector('button[type=submit]');
+  function note(c,t){n.className='m-0 min-h-[1.5em] text-[15px] '+c;n.textContent=t;}
+  if(!f.name.value.trim()||!f.company.value.trim()||!/\S+@\S+\.\S+/.test(f.email.value)){note('text-amber-300','Add your name, company and a valid work email.');return;}
+  if(f._honey.value){return;}
+  var first=f.name.value.trim().split(' ')[0];btn.disabled=true;btn.textContent='Sending…';note('text-mist','');
+  fetch('https://formsubmit.co/ajax/hello@noblefms.com.au',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({
+    _subject:'Demo request: '+f.company.value.trim(),_template:'table',_replyto:f.email.value.trim(),
+    Name:f.name.value.trim(),Company:f.company.value.trim(),Email:f.email.value.trim(),Phone:f.phone.value.trim(),'Annual turnover':f.size.value,Project:f.message.value.trim()
+  })}).then(function(r){return r.json().then(function(d){if(!r.ok||String(d.success)!=='true')throw new Error(d.message||'failed');});})
+  .then(function(){f.reset();note('text-emerald-300','Thanks, '+first+'. We have your details and will be in touch shortly.');})
+  .catch(function(){note('text-amber-300','Sorry, that did not send. Please email hello@noblefms.com.au.');})
+  .finally(function(){btn.disabled=false;btn.textContent='Book my demo';});
 });
 </script>
 
