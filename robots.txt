@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://noblefms.com.au/sitemap.xml
